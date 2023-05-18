@@ -6,7 +6,7 @@ pragma solidity ^0.8.8;
 // contracts are like classes
 contract SimpleStorage {
     // bool, uint(8-256), int(8-256), string, address, bytes(1-32) are automatically initialized with 0
-    uint favoriteNumber;
+    uint favoriteNumber;    
     // key-value-dictionaries
     mapping(string => uint) public nameToFavoriteNumber;
 
@@ -16,8 +16,8 @@ contract SimpleStorage {
     }
     // public (like view function), private, external, internal (standard)
     People[] public people;
-
-    function store(uint _favoriteNumber) public {
+    // virtual makes the function in inherited contracts overridable
+    function store(uint _favoriteNumber) public virtual{
         favoriteNumber = _favoriteNumber;
     }
     // view doesn't change the blockchain -> no gas spend, unless called by a contract
