@@ -16,6 +16,7 @@ Italics -> function name
 
 ## FundMe.sol (Github NPM-Package)
 1. *fund* checks, if the fund amount is big enough and saves sender and amount
+2. *withdraw* allows the owner to withdraw the funds and resets array and mapping
 
 ## PriceConverter.sol (Library)
 1. *getPrice* returns the current ETH/USD price
