@@ -3,22 +3,27 @@ pragma solidity ^0.8.8;
 
 import "./PriceConverter.sol";
 
+error NotOwner();
+
 contract FundMe {
     // PriceConverter-Functions can be applied directly to uint-values
     using PriceConverter for uint;
-    uint public minimumUsd = 50 * 1e18;
+    // constant variables are more gas efficient
+    uint public constant MINIMUM_USD = 50 * 1e18;
     address[] public funders;
     mapping(address => uint) public addressToAmountFunded;
-    address public owner;
+    // immutable is like constant but declaration and definition separated
+    // both are stored in the bytecode of the contract instead of a storage slot
+    address public immutable i_owner;
     // owner = whoever deploys the contract
     constructor(){
-        owner = msg.sender;
+        i_owner = msg.sender;
     }
     function fund() public payable {
         // If the fund amount is too small, everything before inside the function is reverted
         // msg.value has 18 decimals because the currency is Wei not ETH
         // msg.value.getConversionRate() instead of PriceConverter.getConversionRate(msg.value) because of using in line 8
-        require(msg.value.getConversionRate() >= minimumUsd, "Didn't send enough");
+        require(msg.value.getConversionRate() >= MINIMUM_USD, "Didn't send enough");
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] = msg.value;
     }
@@ -40,7 +45,18 @@ contract FundMe {
     // Can be applied directly in function declarations
     // The underscore represents the place of the rest of the code of the modified function
     modifier onlyOwner {
-        require(msg.sender == owner, "Sender is not owner!");
+        // more gas efficient than require with string-array
+        if(msg.sender != i_owner) { revert NotOwner(); }
         _;
+    }
+    // receive and fallback execute fund if a transaction is received without the fund-function
+    // constructor, receive and fallback are special functions that don't need the function keyword
+    // receive is executed everytime a transaction without data is received
+    receive() external payable {
+        fund();
+    }
+    // fallback is executed if a transaction with data is received or there is no receive-function
+    fallback() external payable {
+        fund();
     }
 }
